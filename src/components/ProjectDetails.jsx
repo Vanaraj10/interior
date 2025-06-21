@@ -361,8 +361,7 @@ const ProjectDetails = () => {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
+              <table className="w-full">                <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Room/Label</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Width</th>
@@ -370,14 +369,16 @@ const ProjectDetails = () => {
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Pieces</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Type</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Cloth Meters</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Rate/Meter</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Stitch/Piece</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Cloth Cost</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Stitching Cost</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Total Cost</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Action</th>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {measurements.map((measurement) => (
+                </thead>                <tbody className="divide-y divide-gray-200">
+                  {measurements.map((measurement) => {
+                    const clothCost = parseFloat(measurement.clothRatePerMeter) * parseFloat(measurement.totalMeters);
+                    const stitchingTotal = parseFloat(measurement.stitchingCost) * parseFloat(measurement.pieces);
+                    return (
                     <tr key={measurement.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3 text-sm text-gray-900">{measurement.roomLabel}</td>
                       <td className="px-4 py-3 text-sm text-gray-900">{measurement.widthInches}"</td>
@@ -385,11 +386,16 @@ const ProjectDetails = () => {
                       <td className="px-4 py-3 text-sm text-gray-900">{measurement.pieces}</td>
                       <td className="px-4 py-3 text-sm text-gray-900">{measurement.curtainType}</td>
                       <td className="px-4 py-3 text-sm text-gray-900">{measurement.totalMeters}m</td>
-                      <td className="px-4 py-3 text-sm text-gray-900">₹{measurement.clothRatePerMeter}</td>
                       <td className="px-4 py-3 text-sm text-gray-900">
-                        ₹{measurement.stitchingCost}
+                        <div className="font-medium">₹{clothCost.toFixed(0)}</div>
                         <div className="text-xs text-gray-600">
-                          (₹{(measurement.stitchingCost * measurement.pieces).toFixed(2)} total)
+                          {measurement.totalMeters}m × ₹{measurement.clothRatePerMeter}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-900">
+                        <div className="font-medium">₹{stitchingTotal.toFixed(0)}</div>
+                        <div className="text-xs text-gray-600">
+                          {measurement.pieces} × ₹{measurement.stitchingCost}
                         </div>
                       </td>
                       <td className="px-4 py-3 text-sm font-medium text-gray-900">₹{measurement.totalCost}</td>
@@ -402,7 +408,8 @@ const ProjectDetails = () => {
                         </button>
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

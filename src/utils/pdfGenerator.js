@@ -300,8 +300,7 @@ export const generateQuotationPDF = (project, measurements) => {
               <th style="width: 12%">Stitching Price (₹)</th>
               <th style="width: 10%">Total Price (₹)</th>
             </tr>
-          </thead>
-          <tbody>
+          </thead>          <tbody>
             ${measurements.map((item, index) => {
               const clothCost = parseFloat(item.clothRatePerMeter) * parseFloat(item.totalMeters);
               const stitchingCost = parseFloat(item.stitchingCost) * parseFloat(item.pieces);
@@ -314,8 +313,14 @@ export const generateQuotationPDF = (project, measurements) => {
                   <td>${item.pieces}</td>
                   <td>${item.totalMeters}m</td>
                   <td>${item.curtainType}</td>
-                  <td>₹${clothCost.toFixed(0)}</td>
-                  <td>₹${stitchingCost.toFixed(0)}</td>
+                  <td>
+                    <strong>₹${clothCost.toFixed(0)}</strong><br>
+                    <small style="color: #666; font-size: 9px;">${item.totalMeters}m × ₹${item.clothRatePerMeter}</small>
+                  </td>
+                  <td>
+                    <strong>₹${stitchingCost.toFixed(0)}</strong><br>
+                    <small style="color: #666; font-size: 9px;">${item.pieces} × ₹${item.stitchingCost}</small>
+                  </td>
                   <td><strong>₹${parseFloat(item.totalCost).toFixed(0)}</strong></td>
                 </tr>
               `;
