@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProject, updateProject, calculateClothMeters, calculateTotalCost, calculatePiecesFromWidth } from '../utils/storage';
+import { generateQuotationPDF } from '../utils/pdfGenerator';
 
 const ProjectDetails = () => {
   const { id } = useParams();
@@ -124,11 +125,24 @@ const ProjectDetails = () => {
     const totalWidth = getTotalWidth();
     return totalWidth / 144; // Convert inches to length (144 inches = 1 length)
   };
-
   const getRodCost = () => {
     const rodLength = getRodLength();
     const rate = parseFloat(rodRatePerLength) || 0;
     return rodLength * rate;
+  };
+
+  const handleGeneratePDF = () => {
+    if (measurements.length === 0) {
+      alert('Please add some measurements before generating the PDF');
+      return;
+    }
+    
+    try {
+      generateQuotationPDF(project, measurements);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error generating PDF. Please try again.');
+    }
   };
 
   if (!project) {
@@ -151,16 +165,26 @@ const ProjectDetails = () => {
               ← Back to Projects
             </button>
           </div>
-        </div>
-
-        {/* Add Measurement Button */}
-        <div className="mb-6">
+        </div>        {/* Add Measurement Button */}
+        <div className="mb-6 flex gap-4">
           <button
             onClick={() => setShowAddForm(true)}
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             + Add Measurement
           </button>
+          
+          {measurements.length > 0 && (
+            <button
+              onClick={handleGeneratePDF}
+              className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Generate PDF Quotation
+            </button>
+          )}
         </div>
 
         {/* Add Measurement Form */}
