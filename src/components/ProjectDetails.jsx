@@ -4,10 +4,10 @@ import { getProject, updateProject, calculateClothMeters, calculateTotalCost, ca
 
 const ProjectDetails = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
-  const [project, setProject] = useState(null);
+  const navigate = useNavigate();  const [project, setProject] = useState(null);
   const [measurements, setMeasurements] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [rodRatePerLength, setRodRatePerLength] = useState('');
   const [newMeasurement, setNewMeasurement] = useState({
     roomLabel: '',
     widthInches: '',
@@ -19,12 +19,12 @@ const ProjectDetails = () => {
   });
 
   const curtainTypes = ['Eyelet', 'Pleated', 'Rod Pocket'];
-
   useEffect(() => {
     const projectData = getProject(id);
     if (projectData) {
       setProject(projectData);
       setMeasurements(projectData.measurements || []);
+      setRodRatePerLength(projectData.rodRatePerLength || '');
     } else {
       navigate('/');
     }
@@ -84,9 +84,8 @@ const ProjectDetails = () => {
     };
 
     const updatedMeasurements = [...measurements, measurementWithId];
-    setMeasurements(updatedMeasurements);
-      try {
-      updateProject(id, { measurements: updatedMeasurements });
+    setMeasurements(updatedMeasurements);    try {
+      updateProject(id, { measurements: updatedMeasurements, rodRatePerLength });
       setNewMeasurement({
         roomLabel: '',
         widthInches: '',
@@ -113,9 +112,23 @@ const ProjectDetails = () => {
   const getTotalProjectCost = () => {
     return measurements.reduce((total, measurement) => total + parseFloat(measurement.totalCost), 0);
   };
-
   const getTotalClothMeters = () => {
     return measurements.reduce((total, measurement) => total + parseFloat(measurement.totalMeters), 0);
+  };
+
+  const getTotalWidth = () => {
+    return measurements.reduce((total, measurement) => total + parseFloat(measurement.widthInches), 0);
+  };
+
+  const getRodLength = () => {
+    const totalWidth = getTotalWidth();
+    return totalWidth / 144; // Convert inches to length (144 inches = 1 length)
+  };
+
+  const getRodCost = () => {
+    const rodLength = getRodLength();
+    const rate = parseFloat(rodRatePerLength) || 0;
+    return rodLength * rate;
   };
 
   if (!project) {
@@ -386,9 +399,7 @@ const ProjectDetails = () => {
                 </tbody>
               </table>
             </div>
-          )}
-
-          {/* Summary */}
+          )}          {/* Summary */}
           {measurements.length > 0 && (
             <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
               <div className="flex justify-between items-center">
@@ -402,6 +413,75 @@ const ProjectDetails = () => {
             </div>
           )}
         </div>
+
+        {/* Rod Length Calculation */}
+        {measurements.length > 0 && (
+          <div className="bg-white rounded-lg shadow-md mt-6">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold">Rod Length Calculation</h2>
+            </div>
+            
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="text-sm font-medium text-blue-700 mb-1">Total Width</div>
+                  <div className="text-2xl font-bold text-blue-900">{getTotalWidth().toFixed(1)}"</div>
+                  <div className="text-xs text-blue-600">Sum of all curtain widths</div>
+                </div>
+                
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <div className="text-sm font-medium text-green-700 mb-1">Rod Length Required</div>
+                  <div className="text-2xl font-bold text-green-900">{getRodLength().toFixed(2)}</div>
+                  <div className="text-xs text-green-600">Total width ÷ 144</div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Rod Rate per Length (₹)
+                  </label>                  <input
+                    type="number"
+                    value={rodRatePerLength}
+                    onChange={(e) => {
+                      setRodRatePerLength(e.target.value);
+                      // Save rod rate to project
+                      try {
+                        updateProject(id, { rodRatePerLength: e.target.value });
+                      } catch (error) {
+                        console.error('Error saving rod rate:', error);
+                      }
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter rate per length"
+                    step="0.01"
+                  />
+                </div>
+                
+                <div className="bg-purple-50 p-4 rounded-lg">
+                  <div className="text-sm font-medium text-purple-700 mb-1">Total Rod Cost</div>
+                  <div className="text-2xl font-bold text-purple-900">₹{getRodCost().toFixed(2)}</div>
+                  <div className="text-xs text-purple-600">
+                    {getRodLength().toFixed(2)} × ₹{rodRatePerLength || '0'}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Final Total */}
+              <div className="mt-6 pt-4 border-t border-gray-200">
+                <div className="flex justify-between items-center">
+                  <div className="text-lg font-medium text-gray-700">
+                    Project Total (Curtains + Rod):
+                  </div>
+                  <div className="text-2xl font-bold text-gray-900">
+                    ₹{(getTotalProjectCost() + getRodCost()).toFixed(2)}
+                  </div>
+                </div>
+                <div className="text-sm text-gray-600 mt-1">
+                  Curtains: ₹{getTotalProjectCost().toFixed(2)} + Rod: ₹{getRodCost().toFixed(2)}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
