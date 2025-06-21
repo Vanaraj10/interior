@@ -100,7 +100,9 @@ export const calculatePiecesFromWidth = (widthInches) => {
 // Calculate cloth meters required
 export const calculateClothMeters = (heightInches, pieces) => {
   // Formula: ((height + 15) * pieces) / 39
-  return ((heightInches + 15) * pieces) / 39;
+  // Round up pieces to next whole number (e.g., 3.5 becomes 4)
+  const roundedPieces = Math.ceil(pieces);
+  return ((heightInches + 15) * roundedPieces) / 39;
 };
 
 // Calculate total cost

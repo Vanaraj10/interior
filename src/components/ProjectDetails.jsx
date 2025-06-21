@@ -123,7 +123,7 @@ const ProjectDetails = () => {
 
   const getRodLength = () => {
     const totalWidth = getTotalWidth();
-    return totalWidth / 144; // Convert inches to length (144 inches = 1 length)
+    return totalWidth / 12; // Convert inches to length (12 inches = 1 length)
   };
   const getRodCost = () => {
     const rodLength = getRodLength();
@@ -242,7 +242,7 @@ const ProjectDetails = () => {
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Width in inches"
-                  step="0.1"
+                  min={0}
                   required
                 />
               </div>
@@ -258,7 +258,7 @@ const ProjectDetails = () => {
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Height in inches"
-                  step="0.1"
+                  min={0}
                   required
                 />
               </div>
@@ -308,7 +308,7 @@ const ProjectDetails = () => {
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Rate per meter"
-                  step="0.01"
+                  min={0}
                   required
                 />
               </div>
@@ -324,7 +324,7 @@ const ProjectDetails = () => {
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Cost per piece"
-                  step="0.01"
+                  min={0}
                   required
                 />
               </div>
@@ -451,7 +451,7 @@ const ProjectDetails = () => {
                     </div>
                   </div>
                   <div className="text-2xl font-bold text-slate-900">{getRodLength().toFixed(2)}</div>
-                  <div className="text-xs text-slate-500 mt-1">Standard units (÷144 formula)</div>
+                  <div className="text-xs text-slate-500 mt-1">Standard units (÷12 formula)</div>
                 </div>
 
                 <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
@@ -476,9 +476,9 @@ const ProjectDetails = () => {
                     }}
                     className="w-full px-3 py-2 text-lg font-semibold border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                     placeholder="Enter rate per unit"
-                    step="0.01"
+                    min={0}
                   />
-                  <div className="text-xs text-slate-500 mt-1">Cost per standard unit</div>
+                  <div className="text-xs text-slate-500 mt-1">Cost per unit</div>
                 </div>
               </div>
               

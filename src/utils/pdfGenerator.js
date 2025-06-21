@@ -19,7 +19,7 @@ export const generateQuotationPDF = (project, measurements) => {
 
   const getRodLength = () => {
     const totalWidth = getTotalWidth();
-    return totalWidth / 144; // Convert inches to length (144 inches = 1 length)
+    return totalWidth / 12; // Convert inches to length (12 inches = 1 length)
   };
 
   const getRodCost = () => {
