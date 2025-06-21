@@ -19,7 +19,7 @@ const ProjectDetails = () => {
     stitchingCost: ''
   });
 
-  const curtainTypes = ['Eyelet', 'Pleated', 'Rod Pocket'];
+  const curtainTypes = ['Eyelet', 'Pleated', 'Plain','belt Model','Ripple','Button'];
   useEffect(() => {
     const projectData = getProject(id);
     if (projectData) {
@@ -130,7 +130,6 @@ const ProjectDetails = () => {
     const rate = parseFloat(rodRatePerLength) || 0;
     return rodLength * rate;
   };
-
   const handleGeneratePDF = () => {
     if (measurements.length === 0) {
       alert('Please add some measurements before generating the PDF');
@@ -138,7 +137,9 @@ const ProjectDetails = () => {
     }
     
     try {
-      generateQuotationPDF(project, measurements);
+      // Ensure project has the latest rod rate
+      const updatedProject = { ...project, rodRatePerLength };
+      generateQuotationPDF(updatedProject, measurements);
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Error generating PDF. Please try again.');
@@ -157,7 +158,7 @@ const ProjectDetails = () => {
         {/* Project Header */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900">{project.projectTitle}</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{project.clientName}</h1>
             <button
               onClick={() => navigate('/')}
               className="text-gray-600 hover:text-gray-800"

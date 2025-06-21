@@ -61,7 +61,6 @@ const Dashboard = () => {
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Project</th>
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Client</th>
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Phone</th>
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Measurements</th>
@@ -80,10 +79,9 @@ const Dashboard = () => {
                             to={`/project/${project.id}`}
                             className="text-blue-600 hover:text-blue-800 font-medium"
                           >
-                            {project.projectTitle}
+                            {project.clientName || 'Untitled Project'}
                           </Link>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-900">{project.clientName}</td>
                         <td className="px-6 py-4 text-sm text-gray-900">{project.phoneNumber}</td>
                         <td className="px-6 py-4 text-sm text-gray-900">
                           {summary.measurementCount} items

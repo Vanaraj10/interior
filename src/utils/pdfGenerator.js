@@ -280,8 +280,8 @@ export const generateQuotationPDF = (project, measurements) => {
           <div><strong>Date:</strong> ${new Date().toLocaleDateString('en-IN')}</div>
         </div>
         <div class="customer-row">
-          <div><strong>Project:</strong> ${project.projectTitle || 'Curtain Installation'}</div>
-          <div><strong>Quote #:</strong> QT${Date.now().toString().slice(-6)}</div>
+          <div><strong>Client MobileNo:</strong> ${project.phoneNumber || 'Curtain Installation'}</div>
+          <div><strong>Address:</strong>${project.address}</div>
         </div>
       </div>
       
@@ -321,31 +321,16 @@ export const generateQuotationPDF = (project, measurements) => {
               `;
             }).join('')}
           </tbody>
-        </table>      </div>
-      
-      <!-- Rod Installation Requirements Section -->
+        </table>      </div>      <!-- Rod Installation Requirements Section -->
       ${rodLength > 0 ? `
-      <div style="margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6;">
-        <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 15px; color: #2c3e50; text-align: center;">Rod Installation Requirements</h3>
+      <div style="margin-bottom: 15px; background: #f8f9fa; padding: 8px; border-radius: 4px; border: 1px solid #dee2e6;">
+        <h4 style="font-size: 12px; font-weight: bold; margin-bottom: 8px; color: #2c3e50; text-align: center;">Rod Installation</h4>
         
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 15px;">
-          <div style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #dee2e6; text-align: center;">
-            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Total Coverage</div>
-            <div style="font-size: 18px; font-weight: bold; color: #2c3e50;">${totalWidth.toFixed(1)}"</div>
-            <div style="font-size: 10px; color: #888;">Combined window width</div>
-          </div>
-          
-          <div style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #dee2e6; text-align: center;">
-            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Rod Length Required</div>
-            <div style="font-size: 18px; font-weight: bold; color: #2c3e50;">${rodLength.toFixed(2)} units</div>
-            <div style="font-size: 10px; color: #888;">Standard measurement</div>
-          </div>
-          
-          <div style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #dee2e6; text-align: center;">
-            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Rate per Unit</div>
-            <div style="font-size: 18px; font-weight: bold; color: #2c3e50;">₹${parseFloat(project.rodRatePerLength || 0).toFixed(0)}</div>
-            <div style="font-size: 10px; color: #888;">Installation cost</div>
-          </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 10px;">
+          <span style="color: #666;">Coverage: <strong>${totalWidth.toFixed(1)}"</strong></span>
+          <span style="color: #666;">Length: <strong>${rodLength.toFixed(2)} units</strong></span>
+          <span style="color: #666;">Rate: <strong>₹${parseFloat(project.rodRatePerLength || 0).toFixed(0)}/unit</strong></span>
+          <span style="color: #d32f2f; font-weight: bold;">Cost: ₹${rodCost.toFixed(0)}</span>
         </div>
       </div>
       ` : ''}
@@ -370,8 +355,7 @@ export const generateQuotationPDF = (project, measurements) => {
             <span>Rod Installation:</span>
             <span>₹${rodCost.toFixed(2)}</span>
           </div>
-          ` : ''}
-          <div class="summary-row summary-total">
+          ` : ''}          <div class="summary-row summary-total">
             <span>Grand Total:</span>
             <span>₹${finalGrandTotal.toFixed(2)}</span>
           </div>
