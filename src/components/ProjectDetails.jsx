@@ -151,24 +151,6 @@ const ProjectDetails = () => {
               ← Back to Projects
             </button>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
-            <div>
-              <span className="font-medium">Client:</span> {project.clientName}
-            </div>
-            <div>
-              <span className="font-medium">Phone:</span> {project.phoneNumber}
-            </div>
-            <div>
-              <span className="font-medium">Created:</span> {new Date(project.createdAt).toLocaleDateString()}
-            </div>
-          </div>
-          
-          {project.address && (
-            <div className="mt-2 text-sm text-gray-600">
-              <span className="font-medium">Address:</span> {project.address}
-            </div>
-          )}
         </div>
 
         {/* Add Measurement Button */}
@@ -412,71 +394,109 @@ const ProjectDetails = () => {
               </div>
             </div>
           )}
-        </div>
-
-        {/* Rod Length Calculation */}
+        </div>        {/* Rod Installation & Cost Analysis */}
         {measurements.length > 0 && (
           <div className="bg-white rounded-lg shadow-md mt-6">
             <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold">Rod Length Calculation</h2>
+              <h2 className="text-lg font-semibold text-gray-800">Rod Installation Requirements</h2>
             </div>
             
             <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <div className="text-sm font-medium text-blue-700 mb-1">Total Width</div>
-                  <div className="text-2xl font-bold text-blue-900">{getTotalWidth().toFixed(1)}"</div>
-                  <div className="text-xs text-blue-600">Sum of all curtain widths</div>
+              {/* Rod Specifications */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-sm font-medium text-slate-700">Total Coverage</h3>
+                    <div className="w-8 h-8 bg-slate-600 rounded flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h4a1 1 0 110 2h-1v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6H3a1 1 0 110-2h4z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="text-2xl font-bold text-slate-900">{getTotalWidth().toFixed(1)}"</div>
+                  <div className="text-xs text-slate-500 mt-1">Combined window width</div>
                 </div>
-                
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <div className="text-sm font-medium text-green-700 mb-1">Rod Length Required</div>
-                  <div className="text-2xl font-bold text-green-900">{getRodLength().toFixed(2)}</div>
-                  <div className="text-xs text-green-600">Total width ÷ 144</div>
+
+                <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-sm font-medium text-slate-700">Rod Length Required</h3>
+                    <div className="w-8 h-8 bg-slate-600 rounded flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="text-2xl font-bold text-slate-900">{getRodLength().toFixed(2)}</div>
+                  <div className="text-xs text-slate-500 mt-1">Standard units (÷144 formula)</div>
                 </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Rod Rate per Length (₹)
-                  </label>                  <input
+
+                <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-sm font-medium text-slate-700">Rate Configuration</h3>
+                    <div className="w-8 h-8 bg-slate-600 rounded flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                      </svg>
+                    </div>
+                  </div>
+                  <input
                     type="number"
                     value={rodRatePerLength}
                     onChange={(e) => {
                       setRodRatePerLength(e.target.value);
-                      // Save rod rate to project
                       try {
                         updateProject(id, { rodRatePerLength: e.target.value });
                       } catch (error) {
                         console.error('Error saving rod rate:', error);
                       }
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter rate per length"
+                    className="w-full px-3 py-2 text-lg font-semibold border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                    placeholder="Enter rate per unit"
                     step="0.01"
                   />
-                </div>
-                
-                <div className="bg-purple-50 p-4 rounded-lg">
-                  <div className="text-sm font-medium text-purple-700 mb-1">Total Rod Cost</div>
-                  <div className="text-2xl font-bold text-purple-900">₹{getRodCost().toFixed(2)}</div>
-                  <div className="text-xs text-purple-600">
-                    {getRodLength().toFixed(2)} × ₹{rodRatePerLength || '0'}
-                  </div>
+                  <div className="text-xs text-slate-500 mt-1">Cost per standard unit</div>
                 </div>
               </div>
               
-              {/* Final Total */}
-              <div className="mt-6 pt-4 border-t border-gray-200">
-                <div className="flex justify-between items-center">
-                  <div className="text-lg font-medium text-gray-700">
-                    Project Total (Curtains + Rod):
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900">
-                    ₹{(getTotalProjectCost() + getRodCost()).toFixed(2)}
-                  </div>
+              {/* Cost Summary Table */}
+              <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
+                <div className="bg-slate-800 px-6 py-3">
+                  <h3 className="text-sm font-medium text-white">Project Cost Breakdown</h3>
                 </div>
-                <div className="text-sm text-gray-600 mt-1">
-                  Curtains: ₹{getTotalProjectCost().toFixed(2)} + Rod: ₹{getRodCost().toFixed(2)}
+                <div className="divide-y divide-slate-200">
+                  <div className="px-6 py-4 flex justify-between items-center">
+                    <div>
+                      <div className="font-medium text-slate-900">Curtain Manufacturing</div>
+                      <div className="text-sm text-slate-500">
+                        {measurements.length} items • {getTotalClothMeters().toFixed(2)}m total fabric
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-semibold text-slate-900">₹{getTotalProjectCost().toFixed(2)}</div>
+                    </div>
+                  </div>
+                  
+                  <div className="px-6 py-4 flex justify-between items-center">
+                    <div>
+                      <div className="font-medium text-slate-900">Rod Installation</div>
+                      <div className="text-sm text-slate-500">
+                        {getRodLength().toFixed(2)} units × ₹{rodRatePerLength || '0'} per unit
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-semibold text-slate-900">₹{getRodCost().toFixed(2)}</div>
+                    </div>
+                  </div>
+                  
+                  <div className="px-6 py-4 bg-slate-50 flex justify-between items-center">
+                    <div>
+                      <div className="font-semibold text-slate-900">Total Project Value</div>
+                      <div className="text-sm text-slate-600">Complete installation package</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-slate-900">₹{(getTotalProjectCost() + getRodCost()).toFixed(2)}</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
