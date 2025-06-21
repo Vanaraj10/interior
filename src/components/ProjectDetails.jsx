@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getProject, updateProject, calculateClothMeters, calculateTotalCost } from '../utils/storage';
+import { getProject, updateProject, calculateClothMeters, calculateTotalCost, calculatePiecesFromWidth } from '../utils/storage';
 
 const ProjectDetails = () => {
   const { id } = useParams();
@@ -32,20 +32,30 @@ const ProjectDetails = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewMeasurement(prev => ({
-      ...prev,
+    let updatedMeasurement = {
+      ...newMeasurement,
       [name]: value
-    }));
+    };
+
+    // Auto-calculate pieces when width changes
+    if (name === 'widthInches' && value) {
+      const widthInches = parseFloat(value);
+      if (!isNaN(widthInches)) {
+        updatedMeasurement.pieces = calculatePiecesFromWidth(widthInches);
+      }
+    }
+
+    setNewMeasurement(updatedMeasurement);
   };
 
   const calculateMeasurementTotals = (measurement) => {
     const heightInches = parseFloat(measurement.heightInches) || 0;
-    const pieces = parseInt(measurement.pieces) || 0;
+    const pieces = parseFloat(measurement.pieces) || 0;
     const clothRatePerMeter = parseFloat(measurement.clothRatePerMeter) || 0;
-    const stitchingCost = parseFloat(measurement.stitchingCost) || 0;
+    const stitchingCostPerPiece = parseFloat(measurement.stitchingCost) || 0;
 
     const totalMeters = calculateClothMeters(heightInches, pieces);
-    const totalCost = calculateTotalCost(clothRatePerMeter, totalMeters, stitchingCost);
+    const totalCost = calculateTotalCost(clothRatePerMeter, totalMeters, stitchingCostPerPiece, pieces);
 
     return { totalMeters, totalCost };
   };
@@ -54,7 +64,7 @@ const ProjectDetails = () => {
     e.preventDefault();
     
     if (!newMeasurement.roomLabel || !newMeasurement.widthInches || !newMeasurement.heightInches || 
-        !newMeasurement.pieces || !newMeasurement.clothRatePerMeter || !newMeasurement.stitchingCost) {
+        !newMeasurement.clothRatePerMeter || !newMeasurement.stitchingCost) {
       alert('Please fill in all fields');
       return;
     }
@@ -68,15 +78,14 @@ const ProjectDetails = () => {
       totalCost: totalCost.toFixed(2),
       widthInches: parseFloat(newMeasurement.widthInches),
       heightInches: parseFloat(newMeasurement.heightInches),
-      pieces: parseInt(newMeasurement.pieces),
+      pieces: parseFloat(newMeasurement.pieces),
       clothRatePerMeter: parseFloat(newMeasurement.clothRatePerMeter),
       stitchingCost: parseFloat(newMeasurement.stitchingCost)
     };
 
     const updatedMeasurements = [...measurements, measurementWithId];
     setMeasurements(updatedMeasurements);
-    
-    try {
+      try {
       updateProject(id, { measurements: updatedMeasurements });
       setNewMeasurement({
         roomLabel: '',
@@ -84,8 +93,8 @@ const ProjectDetails = () => {
         heightInches: '',
         pieces: '',
         curtainType: 'Eyelet',
-        clothRatePerMeter: '',
-        stitchingCost: ''
+        clothRatePerMeter: newMeasurement.clothRatePerMeter, // Keep the same rate
+        stitchingCost: newMeasurement.stitchingCost // Keep the same stitching cost
       });
       setShowAddForm(false);
     } catch (error) {
@@ -162,7 +171,31 @@ const ProjectDetails = () => {
         {/* Add Measurement Form */}
         {showAddForm && (
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-lg font-semibold mb-4">Add New Measurement</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Add New Measurement</h2>
+              <div className="text-sm text-gray-600">
+                <details className="cursor-pointer">
+                  <summary className="hover:text-blue-600">📏 Width-to-Pieces Guide</summary>
+                  <div className="mt-2 p-3 bg-gray-50 rounded text-xs">                    <div className="grid grid-cols-2 gap-2">
+                      <div>Under 12" → 1 piece</div>
+                      <div>12-20" → 1 piece</div>
+                      <div>21-28" → 1.5 pieces</div>
+                      <div>29-40" → 2 pieces</div>
+                      <div>41-50" → 2.5 pieces</div>
+                      <div>51-60" → 3 pieces</div>
+                      <div>61-70" → 3.5 pieces</div>
+                      <div>71-80" → 4 pieces</div>
+                      <div>81-90" → 4.5 pieces</div>
+                      <div>91-100" → 5 pieces</div>
+                      <div>101-110" → 5.5 pieces</div>
+                      <div>111-120" → 6 pieces</div>
+                      <div>121-130" → 6.5 pieces</div>
+                      <div>131-140" → 7 pieces</div>
+                    </div>
+                  </div>
+                </details>
+              </div>
+            </div>
             <form onSubmit={handleAddMeasurement} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -213,18 +246,20 @@ const ProjectDetails = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Pieces *
+                  Pieces (Auto-calculated)
                 </label>
                 <input
                   type="number"
                   name="pieces"
                   value={newMeasurement.pieces}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Number of pieces"
-                  min="1"
-                  required
+                  readOnly
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 cursor-not-allowed"
+                  placeholder="Auto-calculated based on width"
+                  step="0.5"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Based on width: {newMeasurement.widthInches ? `${newMeasurement.widthInches}"` : 'Enter width'}
+                </p>
               </div>
 
               <div>
@@ -261,7 +296,7 @@ const ProjectDetails = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Stitching Cost (₹) *
+                  Stitching Cost/Piece (₹) *
                 </label>
                 <input
                   type="number"
@@ -269,7 +304,7 @@ const ProjectDetails = () => {
                   value={newMeasurement.stitchingCost}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Stitching cost"
+                  placeholder="Cost per piece"
                   step="0.01"
                   required
                 />
@@ -316,7 +351,7 @@ const ProjectDetails = () => {
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Type</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Cloth Meters</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Rate/Meter</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Stitching</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Stitch/Piece</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Total Cost</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Action</th>
                   </tr>
@@ -331,7 +366,12 @@ const ProjectDetails = () => {
                       <td className="px-4 py-3 text-sm text-gray-900">{measurement.curtainType}</td>
                       <td className="px-4 py-3 text-sm text-gray-900">{measurement.totalMeters}m</td>
                       <td className="px-4 py-3 text-sm text-gray-900">₹{measurement.clothRatePerMeter}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900">₹{measurement.stitchingCost}</td>
+                      <td className="px-4 py-3 text-sm text-gray-900">
+                        ₹{measurement.stitchingCost}
+                        <div className="text-xs text-gray-600">
+                          (₹{(measurement.stitchingCost * measurement.pieces).toFixed(2)} total)
+                        </div>
+                      </td>
                       <td className="px-4 py-3 text-sm font-medium text-gray-900">₹{measurement.totalCost}</td>
                       <td className="px-4 py-3 text-sm">
                         <button

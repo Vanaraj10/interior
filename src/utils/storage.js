@@ -77,6 +77,26 @@ const generateId = () => {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 };
 
+// Calculate pieces based on width
+export const calculatePiecesFromWidth = (widthInches) => {
+  if (widthInches < 12) return 1;
+  if (widthInches >= 12 && widthInches <= 20) return 1;
+  if (widthInches >= 21 && widthInches <= 28) return 1.5;
+  if (widthInches >= 29 && widthInches <= 40) return 2;
+  if (widthInches >= 41 && widthInches <= 50) return 2.5;
+  if (widthInches >= 51 && widthInches <= 60) return 3;
+  if (widthInches >= 61 && widthInches <= 70) return 3.5;
+  if (widthInches >= 71 && widthInches <= 80) return 4;
+  if (widthInches >= 81 && widthInches <= 90) return 4.5;
+  if (widthInches >= 91 && widthInches <= 100) return 5;
+  if (widthInches >= 101 && widthInches <= 110) return 5.5;
+  if (widthInches >= 111 && widthInches <= 120) return 6;
+  if (widthInches >= 121 && widthInches <= 130) return 6.5;
+  if (widthInches >= 131 && widthInches <= 140) return 7;
+  // For widths greater than 140, continue the pattern (add 0.5 pieces for every 10 inches)
+  return 7 + Math.ceil((widthInches - 140) / 10) * 0.5;
+};
+
 // Calculate cloth meters required
 export const calculateClothMeters = (heightInches, pieces) => {
   // Formula: ((height + 15) * pieces) / 39
@@ -84,7 +104,8 @@ export const calculateClothMeters = (heightInches, pieces) => {
 };
 
 // Calculate total cost
-export const calculateTotalCost = (clothRatePerMeter, totalMeters, stitchingCost) => {
+export const calculateTotalCost = (clothRatePerMeter, totalMeters, stitchingCostPerPiece, pieces) => {
   const clothCost = clothRatePerMeter * totalMeters;
-  return clothCost + stitchingCost;
+  const totalStitchingCost = stitchingCostPerPiece * pieces;
+  return clothCost + totalStitchingCost;
 };
